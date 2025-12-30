@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Resep Puyer - dr. Rikki Sababalat</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #333;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 90vh;
+        }
+        .container {
+            max_width: 800px;
+            margin: 0 auto;
+            flex: 1; /* Push footer down */
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input[type="number"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-calc { background-color: var(--primary); color: white; }
+        .btn-calc:hover { background-color: #0056b3; }
+        
+        .btn-gen { background-color: #28a745; color: white; width: 100%; margin-top: 10px;}
+        .btn-gen:hover { background-color: #218838; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .highlight {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+        .tablet-count {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.1em;
+        }
+        
+        /* Area Tabel Referensi */
+        #refTableContainer {
+            display: none; /* Hidden by default */
+            overflow-x: auto;
+        }
+        .ref-table th, .ref-table td {
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+        .ref-table th { background-color: #e9ecef; min-width: 60px; }
+        .ref-table tr:nth-child(even) { background-color: #f9f9f9; }
+
+        /* Footer Style */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        @media print {
+            body { background: white; }
+            .no-print { display: none; }
+            .card { box-shadow: none; border: 1px solid #ccc; }
+            .footer { position: fixed; bottom: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💊 Kalkulator Puyer (10 Bungkus)</h1>
+
+    <div class="card no-print">
+        <label for="weight">Masukkan Berat Badan (kg):</label>
+        <div class="input-group">
+            <input type="number" id="weight" placeholder="Contoh: 12.5" step="0.1" onkeypress="handleEnter(event)">
+            <button class="btn-calc" onclick="calculate()">Hitung Resep</button>
+        </div>
+        <p style="font-size: 0.9em; color: #666;">*Otomatis membatasi dosis max 1 tablet/kali (Safety Cap).</p>
+    </div>
+
+    <div class="card" id="resultCard" style="display:none;">
+        <h3 style="margin-top:0">Hasil Perhitungan (Untuk 10 Bungkus)</h3>
+        <p><strong>Berat Badan Pasien: <span id="displayWeight"></span> kg</strong></p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Obat</th>
+                    <th>Dosis Anak/x</th>
+                    <th>Jml Tablet (Gerus)</th>
+                </tr>
+            </thead>
+            <tbody id="resultBody">
+                </tbody>
+        </table>
+    </div>
+
+    <div class="card no-print">
+        <h3>Referensi Cepat</h3>
+        <button class="btn-gen" onclick="generateReferenceTable()">Buka Tabel Dosis Lengkap (1-40kg)</button>
+        <div id="refTableContainer">
+            <h4 style="text-align:center; margin-top:20px;">Tabel Referensi Racikan 10 Puyer</h4>
+            <table class="ref-table" id="fullRefTable">
+                </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2025 dr. Rikki Sababalat<br>
+        <small>Medical Dosage Calculation Tool</small>
+    </div>
+</div>
+
+<script>
+    // Konfigurasi Obat
+    const drugs = [
+        {name: "Paracetamol", sediaan: 500, dose: 15},
+        {name: "Amoxicillin", sediaan: 500, dose: 20/3}, // 20mg/hr bagi 3
+        {name: "Ambroxol", sediaan: 30, dose: 0.5},
+        {name: "CTM", sediaan: 4, dose: 0.1},
+        {name: "Domperidone", sediaan: 10, dose: 0.25},
+        {name: "Salbutamol", sediaan: 2, dose: 0.05},
+        {name: "Metilprednisolon", sediaan: 4, dose: 0.8} // Range 0.5-1, ambil tengah
+    ];
+
+    function handleEnter(e) {
+        if(e.key === 'Enter') calculate();
+    }
+
+    function calculateLogic(weight) {
+        let results = [];
+        drugs.forEach(drug => {
+            // 1. Hitung kebutuhan mg per kali
+            let doseNeeded = weight * drug.dose;
+            let isCapped = false;
+
+            // 2. Cek Max Dose (Sediaan Tablet)
+            if (doseNeeded > drug.sediaan) {
+                doseNeeded = drug.sediaan;
+                isCapped = true;
+            }
+
+            // 3. Hitung Total untuk 10 puyer
+            let totalMg = doseNeeded * 10;
+            
+            // 4. Hitung Jumlah Tablet
+            let tablets = totalMg / drug.sediaan;
+
+            results.push({
+                name: drug.name,
+                sediaan: drug.sediaan,
+                dosePerTime: doseNeeded,
+                tablets: tablets,
+                isCapped: isCapped
+            });
+        });
+        return results;
+    }
+
+    function calculate() {
+        const weightInput = document.getElementById('weight').value;
+        const weight = parseFloat(weightInput.replace(',', '.'));
+
+        if (!weight || weight <= 0) {
+            alert("Masukkan berat badan yang valid!");
+            return;
+        }
+
+        const data = calculateLogic(weight);
+        const tbody = document.getElementById('resultBody');
+        tbody.innerHTML = "";
+
+        document.getElementById('displayWeight').innerText = weight;
+        document.getElementById('resultCard').style.display = 'block';
+
+        data.forEach(item => {
+            let note = item.isCapped ? "<span class='highlight'> (MAX)</span>" : "";
+            let row = `
+                <tr>
+                    <td>${item.name} <small style="color:#888">(${item.sediaan}mg)</small></td>
+                    <td>${item.dosePerTime.toFixed(2)} mg${note}</td>
+                    <td><span class="tablet-count">${item.tablets.toFixed(2)}</span> Tab</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function generateReferenceTable() {
+        const container = document.getElementById('refTableContainer');
+        const table = document.getElementById('fullRefTable');
+        
+        // Toggle visibility
+        if (container.style.display === 'block') {
+            container.style.display = 'none';
+            return;
+        }
+        
+        container.style.display = 'block';
+        table.innerHTML = ""; // Clear existing
+
+        // Create Header
+        let thead = "<thead><tr><th>BB (kg)</th>";
+        drugs.forEach(d => {
+            thead += `<th>${d.name}<br><small>(${d.sediaan}mg)</small></th>`;
+        });
+        thead += "</tr></thead>";
+        table.innerHTML += thead;
+
+        // Create Body 1-40kg
+        let tbody = "<tbody>";
+        for (let w = 1; w <= 40; w++) {
+            let row = `<tr><td><strong>${w}</strong></td>`;
+            let res = calculateLogic(w);
+            
+            res.forEach(r => {
+                row += `<td>${r.tablets.toFixed(2)}</td>`;
+            });
+            row += "</tr>";
+            tbody += row;
+        }
+        tbody += "</tbody>";
+        table.innerHTML += tbody;
+    }
+</script>
+
+</body>
+</html>
