@@ -24,7 +24,7 @@
         .container {
             max_width: 800px;
             margin: 0 auto;
-            flex: 1; /* Push footer down */
+            flex: 1;
             width: 100%;
         }
         h1 {
@@ -95,7 +95,7 @@
         
         /* Area Tabel Referensi */
         #refTableContainer {
-            display: none; /* Hidden by default */
+            display: none;
             overflow-x: auto;
         }
         .ref-table th, .ref-table td {
@@ -106,7 +106,39 @@
         .ref-table th { background-color: #e9ecef; min-width: 60px; }
         .ref-table tr:nth-child(even) { background-color: #f9f9f9; }
 
-        /* Footer Style */
+        /* Style Khusus Resep */
+        .resep-box {
+            background-color: #fffef0; /* Warna kertas agak kuning */
+            border: 1px solid #ddd;
+            border-left: 5px solid #2c3e50;
+            padding: 20px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1.1rem;
+            color: #000;
+            margin-top: 20px;
+            white-space: pre-wrap; /* Agar enter terbaca */
+            line-height: 1.5;
+            position: relative;
+        }
+        .resep-header {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: block;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+        }
+        .resep-disclaimer {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-size: 0.85rem;
+            color: #d9534f; /* Merah kalem */
+            font-style: italic;
+            display: block;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -121,6 +153,7 @@
             body { background: white; }
             .no-print { display: none; }
             .card { box-shadow: none; border: 1px solid #ccc; }
+            .resep-box { border: 1px solid #000; }
             .footer { position: fixed; bottom: 0; width: 100%; }
         }
     </style>
@@ -133,14 +166,14 @@
     <div class="card no-print">
         <label for="weight">Masukkan Berat Badan (kg):</label>
         <div class="input-group">
-            <input type="number" id="weight" placeholder="Contoh: 12.5" step="0.1" onkeypress="handleEnter(event)">
+            <input type="number" id="weight" placeholder="Contoh: 10" step="0.1" onkeypress="handleEnter(event)">
             <button class="btn-calc" onclick="calculate()">Hitung Resep</button>
         </div>
         <p style="font-size: 0.9em; color: #666;">*Otomatis membatasi dosis max 1 tablet/kali (Safety Cap).</p>
     </div>
 
     <div class="card" id="resultCard" style="display:none;">
-        <h3 style="margin-top:0">Hasil Perhitungan (Untuk 10 Bungkus)</h3>
+        <h3 style="margin-top:0">1. Rincian Perhitungan</h3>
         <p><strong>Berat Badan Pasien: <span id="displayWeight"></span> kg</strong></p>
         <table>
             <thead>
@@ -153,6 +186,11 @@
             <tbody id="resultBody">
                 </tbody>
         </table>
+
+        <h3 style="margin-top:30px">2. Contoh Penulisan Resep</h3>
+        <p style="font-size:0.9em; color:#666;">(Salin format ini ke kertas resep)</p>
+        <div class="resep-box" id="resepText">
+            </div>
     </div>
 
     <div class="card no-print">
@@ -233,7 +271,14 @@
         document.getElementById('displayWeight').innerText = weight;
         document.getElementById('resultCard').style.display = 'block';
 
+        // 1. Render Tabel
+        // DISCLAIMER DITAMBAHKAN DI SINI
+        let resepString = "<span class='resep-disclaimer'>*Keterangan: Obat yang tertulis di bawah ini hanyalah contoh simulasi. Silakan pilih sesuai indikasi medis pasien.</span>";
+        
+        resepString += "<span class='resep-header'>R/</span>";
+        
         data.forEach(item => {
+            // Render Table Row
             let note = item.isCapped ? "<span class='highlight'> (MAX)</span>" : "";
             let row = `
                 <tr>
@@ -243,21 +288,29 @@
                 </tr>
             `;
             tbody.innerHTML += row;
+
+            // Build Resep String (Tumpuk ke bawah)
+            resepString += `${item.name} ${item.sediaan} mg (${item.tablets.toFixed(2)} Tab)\n`;
         });
+
+        // Add Footer Resep
+        resepString += "\n   m.f. ini pulv. No. X\n   S 3 dd 1 pulv";
+
+        // 2. Render Resep Box
+        document.getElementById('resepText').innerHTML = resepString;
     }
 
     function generateReferenceTable() {
         const container = document.getElementById('refTableContainer');
         const table = document.getElementById('fullRefTable');
         
-        // Toggle visibility
         if (container.style.display === 'block') {
             container.style.display = 'none';
             return;
         }
         
         container.style.display = 'block';
-        table.innerHTML = ""; // Clear existing
+        table.innerHTML = ""; 
 
         // Create Header
         let thead = "<thead><tr><th>BB (kg)</th>";
