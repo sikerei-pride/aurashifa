@@ -1,34 +1,49 @@
-<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-orange-50 px-4">
+<div className="min-h-screen bg-gradient-to-br from-indigo-600 via-blue-600 to-orange-400 flex items-center justify-center px-4 py-10">
 
-  <div className="max-w-md w-full bg-white border border-indigo-100 rounded-2xl shadow-lg p-6 text-center relative overflow-hidden">
+  <div className="w-full max-w-md bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl p-7 text-center relative overflow-hidden border border-white/30">
 
-    <!-- Accent Top Bar -->
-    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-orange-400"></div>
+    <!-- Floating Glow -->
+    <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-300 opacity-30 rounded-full blur-3xl"></div>
+    <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-indigo-300 opacity-30 rounded-full blur-3xl"></div>
+
+    <!-- Badge -->
+    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 shadow">
+      <i className="fa-solid fa-sparkles text-[10px]"></i>
+      Versi Terbaru Tersedia
+    </div>
 
     <!-- Icon -->
-    <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
+    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-500 text-white flex items-center justify-center text-2xl shadow-lg">
       <i className="fa-solid fa-rocket"></i>
     </div>
 
     <!-- Title -->
-    <h2 className="text-lg font-bold text-indigo-800 mb-2">
-      Website Telah Diperbarui 🚀
-    </h2>
+    <h1 className="text-xl sm:text-2xl font-bold text-slate-800 mb-3 leading-snug">
+      Website Telah Diupgrade 🚀
+    </h1>
 
     <!-- Description -->
-    <p className="text-sm text-slate-600 leading-relaxed mb-5">
-      Halaman yang Anda tuju sudah menggunakan versi terbaru dari sistem. 
-      Silakan kunjungi link di bawah untuk mengakses tampilan dan fitur terbaru.
+    <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-6">
+      Halaman yang Anda akses kini menggunakan model sistem terbaru dengan tampilan lebih modern dan performa lebih cepat.
+      Silakan kunjungi versi terbaru melalui tombol di bawah ini.
     </p>
 
-    <!-- Button -->
+    <!-- CTA Button -->
     <a 
-      href="https://papeda-dingin.vercel.app/dosis-obat-anak" 
-      className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-orange-400 hover:opacity-90 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow transition"
+      href="https://linkbaruanda.com"
+      className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-500 hover:scale-[1.02] active:scale-[0.98] transition-transform text-white font-semibold py-3 rounded-xl shadow-lg text-sm sm:text-base"
     >
       Kunjungi Versi Terbaru
       <i className="fa-solid fa-arrow-right"></i>
     </a>
+
+    <!-- Secondary Link -->
+    <p className="text-xs text-slate-500 mt-4">
+      Jika tombol tidak berfungsi, 
+      <a href="https://linkbaruanda.com" className="text-indigo-600 font-medium underline">
+        klik di sini
+      </a>
+    </p>
 
   </div>
 
